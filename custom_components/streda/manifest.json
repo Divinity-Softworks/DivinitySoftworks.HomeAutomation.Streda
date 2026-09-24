@@ -1,0 +1,13 @@
+{
+  "domain": "streda",
+  "name": "Isolectra Streda",
+  "codeowners": ["@Divinity-Softworks"],
+  "config_flow": true,
+  "dependencies": ["mqtt"],
+  "documentation": "https://github.com/Divinity-Softworks/DivinitySoftworks.HomeAutomation.Streda",
+  "integration_type": "hub",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/Divinity-Softworks/DivinitySoftworks.HomeAutomation.Streda/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
