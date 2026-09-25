@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Michael K. @ Divinity Softworks
+# SPDX-License-Identifier: MIT
+
 """Binary sensors: smoke, fault and battery low."""
 
 from __future__ import annotations

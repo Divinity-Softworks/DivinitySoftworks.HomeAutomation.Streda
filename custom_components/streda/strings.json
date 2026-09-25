@@ -3,21 +3,41 @@
     "step": {
       "user": {
         "title": "Isolectra Streda",
-        "description": "Connects to the Zigbee2MQTT of your Streda box. Add the MQTT integration first, with your Streda box's IP address and port 1883.\n\nThis integration only reads from the box; it sends a command only when you switch a device.",
+        "description": "Connect to your Streda box. Enter its IP address (reserve a fixed address for it in your router). This integration uses its own connection, next to any MQTT setup you already have.\n\nIt only reads from the box; it sends a command only when you switch a device.",
         "data": {
+          "host": "IP address of the Streda box",
+          "port": "Port",
+          "username": "Username",
+          "password": "Password",
           "base_topic": "Zigbee2MQTT base topic"
         },
         "data_description": {
+          "host": "For example 192.168.68.50.",
+          "port": "The box's MQTT port, normally 1883.",
+          "username": "Leave empty unless your box requires a login.",
           "base_topic": "Leave at zigbee2mqtt unless your box uses another topic."
+        }
+      },
+      "reconfigure": {
+        "title": "Isolectra Streda",
+        "description": "Change the connection to your Streda box, for example after it got a new IP address.",
+        "data": {
+          "host": "IP address of the Streda box",
+          "port": "Port",
+          "username": "Username",
+          "password": "Password",
+          "base_topic": "Zigbee2MQTT base topic"
         }
       }
     },
     "error": {
-      "no_device_list": "No device list received on this topic within 10 seconds. Is MQTT connected to the Streda box, and is the base topic correct?"
+      "cannot_connect": "Cannot connect to the Streda box. Check the IP address and port, and that Home Assistant is on the same network.",
+      "invalid_auth": "The Streda box refused the username or password.",
+      "no_device_list": "Connected, but no device list was received within 10 seconds. Is this a Streda box, and is the base topic correct?"
     },
     "abort": {
       "already_configured": "This Streda box is already set up.",
-      "mqtt_not_connected": "The MQTT integration is not set up or not connected. Add MQTT first, with your Streda box's IP address and port 1883."
+      "reconfigure_successful": "The connection to the Streda box was updated."
     }
   }
 }

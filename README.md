@@ -56,18 +56,28 @@ Copy `custom_components/streda` to `/config/custom_components/streda` and restar
 
 ## Setup
 
-1. **Add the MQTT integration** (Settings → Devices & services → Add integration → MQTT):
-   broker = your Streda box's IP address, port `1883`, no username/password (unless your box has one).
-   Optionally, in the MQTT options, turn off discovery and the birth/will messages; this integration does
-   not need them.
-2. **Add the Isolectra Streda integration** and keep the base topic `zigbee2mqtt`.
+1. **Find the Streda box's IP address** in your router, and preferably reserve a fixed address for it
+   (DHCP reservation), so it does not change.
+2. **Add the Isolectra Streda integration** (Settings → Devices & services → Add integration) and enter:
+   the box's IP address, port `1883`, no username/password (unless your box has one), base topic `zigbee2mqtt`.
 3. All devices appear with generic names such as *Streda BN1-C c75a*. Name them and assign rooms in the UI.
    Tip: press a wall switch and watch which relay changes in the logbook to find out which is which.
+
+The integration uses **its own connection** to the box. You do not need Home Assistant's MQTT integration,
+and an existing MQTT setup (for example your own Mosquitto broker) is not affected.
+If the box gets a new IP address: Settings → Devices & services → Isolectra Streda → ⋮ → **Reconfigure**.
+
+### Upgrading from 0.1.x
+
+Version 0.1.x used Home Assistant's MQTT integration. On upgrade, the Streda entry takes the box's address
+from that MQTT connection automatically; entities and names stay the same. If the MQTT integration was only
+used for the Streda box, you can remove it afterwards.
 
 ## Requirements
 
 - Home Assistant 2025.1 or newer
 - Network access from Home Assistant to the Streda box (same home network)
+- `paho-mqtt` (included with Home Assistant)
 
 ## Development
 

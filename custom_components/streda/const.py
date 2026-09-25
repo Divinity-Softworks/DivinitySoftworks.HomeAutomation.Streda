@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Michael K. @ Divinity Softworks
+# SPDX-License-Identifier: MIT
+
 """Constants for the Isolectra Streda integration."""
 
 from homeassistant.const import Platform
@@ -6,6 +9,7 @@ DOMAIN = "streda"
 
 CONF_BASE_TOPIC = "base_topic"
 DEFAULT_BASE_TOPIC = "zigbee2mqtt"
+DEFAULT_PORT = 1883
 
 PLATFORMS = [Platform.BINARY_SENSOR, Platform.EVENT, Platform.LIGHT, Platform.SENSOR, Platform.SWITCH]
 

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Michael K. @ Divinity Softworks
+# SPDX-License-Identifier: MIT
+
 """Sensors: relay current and estimated power, battery, temperature, link quality."""
 
 from __future__ import annotations

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Michael K. @ Divinity Softworks
+# SPDX-License-Identifier: MIT
+
 """Relay channels of Streda snap-ins.
 
 Relays are switches; a relay that drives a lamp can be shown as a light with Home Assistant's own

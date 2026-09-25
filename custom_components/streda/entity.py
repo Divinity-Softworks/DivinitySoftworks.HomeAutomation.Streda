@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Michael K. @ Divinity Softworks
+# SPDX-License-Identifier: MIT
+
 """Base entity and expose helpers for Isolectra Streda."""
 
 from __future__ import annotations
@@ -57,7 +60,7 @@ class StredaEntity(Entity):
 
     @property
     def available(self) -> bool:
-        return self._device.available
+        return self._hub.connected and self._device.available
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()

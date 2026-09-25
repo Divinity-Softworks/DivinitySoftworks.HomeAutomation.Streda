@@ -1,4 +1,7 @@
-"""Connection to the Streda box (Zigbee2MQTT) through Home Assistant's MQTT integration.
+# Copyright (c) 2026 Michael K. @ Divinity Softworks
+# SPDX-License-Identifier: MIT
+
+"""Connection to the Streda box (Zigbee2MQTT) and the state of its devices.
 
 Read-only towards the box: the hub only subscribes. The only messages ever published are device
 commands (`<base>/<device>/set`) when a user or automation switches an entity. It never sends bridge
@@ -13,15 +16,15 @@ import json
 import logging
 from typing import Any
 
-from homeassistant.components import mqtt
-from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
+from .client import StredaClient
 from .const import signal_device
 
 _LOGGER = logging.getLogger(__name__)
 
-DEVICE_LIST_TIMEOUT = 15
+DEVICE_LIST_TIMEOUT = 20
 
 
 @dataclass
@@ -49,43 +52,73 @@ class StredaDevice:
 class StredaHub:
     """Keeps the device list and the latest state per device, and dispatches updates to entities."""
 
-    def __init__(self, hass: HomeAssistant, entry_id: str, base_topic: str) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        entry_id: str,
+        host: str,
+        port: int,
+        username: str | None,
+        password: str | None,
+        base_topic: str,
+    ) -> None:
         self.hass = hass
         self.entry_id = entry_id
         self.base = base_topic
         self.devices: dict[str, StredaDevice] = {}
+        self.connected = False
         self._by_name: dict[str, str] = {}
-        self._unsubs: list[CALLBACK_TYPE] = []
         self._device_list = asyncio.Event()
-        self.on_new_devices: CALLBACK_TYPE | None = None
+        self.on_new_devices: Any = None
+        self._client = StredaClient(
+            hass,
+            host,
+            port,
+            username,
+            password,
+            subscriptions=[f"{base_topic}/bridge/devices", f"{base_topic}/+", f"{base_topic}/+/availability"],
+            on_message=self._on_message,
+            on_connection=self._on_connection,
+        )
 
     async def async_start(self) -> bool:
-        """Subscribe and wait for the retained device list. Returns False when none arrives."""
-        self._unsubs.append(
-            await mqtt.async_subscribe(self.hass, f"{self.base}/bridge/devices", self._on_device_list)
-        )
+        """Connect and wait for the retained device list. Returns False when none arrives."""
+        await self.hass.async_add_executor_job(self._client.start)
         try:
             await asyncio.wait_for(self._device_list.wait(), DEVICE_LIST_TIMEOUT)
         except TimeoutError:
-            self.async_stop()
+            await self.async_stop()
             return False
-        self._unsubs.append(await mqtt.async_subscribe(self.hass, f"{self.base}/+", self._on_state))
-        self._unsubs.append(
-            await mqtt.async_subscribe(self.hass, f"{self.base}/+/availability", self._on_availability)
-        )
         return True
 
-    @callback
-    def async_stop(self) -> None:
-        while self._unsubs:
-            self._unsubs.pop()()
+    async def async_stop(self) -> None:
+        await self.hass.async_add_executor_job(self._client.stop)
 
     @callback
-    def _on_device_list(self, msg: mqtt.ReceiveMessage) -> None:
+    def _on_connection(self, connected: bool) -> None:
+        if connected == self.connected:
+            return
+        self.connected = connected
+        if not connected:
+            _LOGGER.warning("Lost the connection to the Streda box; reconnecting")
+        for ieee in self.devices:
+            async_dispatcher_send(self.hass, signal_device(self.entry_id, ieee), None)
+
+    @callback
+    def _on_message(self, topic: str, payload: bytes) -> None:
+        if topic == f"{self.base}/bridge/devices":
+            self._on_device_list(payload)
+        elif topic.endswith("/availability"):
+            self._on_availability(topic[len(self.base) + 1 : -len("/availability")], payload)
+        else:
+            self._on_state(topic[len(self.base) + 1 :], payload)
+
+    @callback
+    def _on_device_list(self, payload: bytes) -> None:
         try:
-            raw = json.loads(msg.payload)
+            raw = json.loads(payload)
         except (TypeError, ValueError):
-            _LOGGER.warning("Invalid device list on %s", msg.topic)
+            _LOGGER.warning("Invalid device list received from the Streda box")
             return
         devices: dict[str, StredaDevice] = {}
         for d in raw:
@@ -115,30 +148,28 @@ class StredaHub:
             self.on_new_devices()
 
     @callback
-    def _on_state(self, msg: mqtt.ReceiveMessage) -> None:
-        ieee = self._by_name.get(msg.topic[len(self.base) + 1 :])
-        if ieee is None:
-            return
-        try:
-            payload = json.loads(msg.payload)
-        except (TypeError, ValueError):
-            return
-        if not isinstance(payload, dict):
-            return
-        device = self.devices[ieee]
-        device.state.update(payload)
-        async_dispatcher_send(self.hass, signal_device(self.entry_id, ieee), payload)
-
-    @callback
-    def _on_availability(self, msg: mqtt.ReceiveMessage) -> None:
-        name = msg.topic[len(self.base) + 1 : -len("/availability")]
+    def _on_state(self, name: str, payload: bytes) -> None:
         ieee = self._by_name.get(name)
         if ieee is None:
             return
         try:
-            state = json.loads(msg.payload).get("state")
+            data = json.loads(payload)
+        except (TypeError, ValueError):
+            return
+        if not isinstance(data, dict):
+            return
+        self.devices[ieee].state.update(data)
+        async_dispatcher_send(self.hass, signal_device(self.entry_id, ieee), data)
+
+    @callback
+    def _on_availability(self, name: str, payload: bytes) -> None:
+        ieee = self._by_name.get(name)
+        if ieee is None:
+            return
+        try:
+            state = json.loads(payload).get("state")
         except (TypeError, ValueError, AttributeError):
-            state = msg.payload
+            state = payload.decode(errors="ignore")
         device = self.devices[ieee]
         available = state == "online"
         if available != device.available:
@@ -147,6 +178,6 @@ class StredaHub:
 
     async def async_command(self, device: StredaDevice, payload: dict[str, Any]) -> None:
         """Send a device command, exactly like the Streda app would (never retained)."""
-        await mqtt.async_publish(
-            self.hass, f"{self.base}/{device.friendly_name}/set", json.dumps(payload), qos=0, retain=False
+        await self.hass.async_add_executor_job(
+            self._client.publish, f"{self.base}/{device.friendly_name}/set", json.dumps(payload)
         )

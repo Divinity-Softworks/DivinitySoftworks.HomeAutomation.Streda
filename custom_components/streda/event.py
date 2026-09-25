@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Michael K. @ Divinity Softworks
+# SPDX-License-Identifier: MIT
+
 """Button presses of Streda wall switches, and the doorbell."""
 
 from __future__ import annotations

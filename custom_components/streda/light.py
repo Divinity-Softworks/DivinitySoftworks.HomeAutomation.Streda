@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Michael K. @ Divinity Softworks
+# SPDX-License-Identifier: MIT
+
 """Dimmers of Streda snap-ins (e.g. SN2-E). The colour-capable status LEDs are not exposed."""
 
 from __future__ import annotations
