@@ -1,4 +1,4 @@
-# Isolectra Streda for Home Assistant
+# Isolectra Streda (Unofficial) for Home Assistant
 
 Custom integration that makes the devices of an **Isolectra Streda** installation available in Home Assistant:
 lights, relays, dimmers, wall switches, the doorbell and smoke detectors.
@@ -9,6 +9,9 @@ without any manual configuration.
 
 > **Unofficial.** This project is not affiliated with or supported by Isolectra. A firmware update of the Streda
 > box may change its behaviour.
+>
+> **Use at your own risk.** This integration comes without any warranty (see the [MIT license](LICENSE)). You remain
+> responsible for your own installation, including any warranty or service agreement you have with Isolectra.
 
 ## Read-only towards the Streda box
 
@@ -48,7 +51,7 @@ Behaviour worth knowing:
 ### HACS (recommended)
 
 1. HACS → ⋮ → **Custom repositories** → add this repository's URL, type **Integration**.
-2. Install **Isolectra Streda** and restart Home Assistant.
+2. Install **Isolectra Streda (Unofficial)** and restart Home Assistant.
 
 ### Manual
 
@@ -56,7 +59,7 @@ Copy `custom_components/streda` to `/config/custom_components/streda` and restar
 
 ## Setup
 
-1. **Add the Isolectra Streda integration** (Settings → Devices & services → Add integration). It first
+1. **Add the Isolectra Streda (Unofficial) integration** (Settings → Devices & services → Add integration). It first
    searches your network for Streda boxes (up to half a minute) and lists the ones it finds: pick yours.
 2. **Not found?** Choose *Enter the IP address myself* (or you get that form directly) and enter the box's
    IP address, port `1883`, no username/password (unless your box has one), base topic `zigbee2mqtt`.
@@ -94,7 +97,7 @@ host networking; enter the address yourself in those cases.
 
 The integration uses **its own connection** to the box. You do not need Home Assistant's MQTT integration,
 and an existing MQTT setup (for example your own Mosquitto broker) is not affected.
-If the box gets a new IP address: Settings → Devices & services → Isolectra Streda → ⋮ → **Reconfigure**.
+If the box gets a new IP address: Settings → Devices & services → Isolectra Streda (Unofficial) → ⋮ → **Reconfigure**.
 
 ### Upgrading from 0.1.x
 

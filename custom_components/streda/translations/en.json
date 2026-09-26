@@ -2,14 +2,14 @@
   "config": {
     "step": {
       "pick": {
-        "title": "Isolectra Streda",
+        "title": "Isolectra Streda (Unofficial)",
         "description": "Found {count} Streda box(es) on your network. Choose yours, or enter the IP address yourself.\n\nThis integration uses its own connection, next to any MQTT setup you already have. It only reads from the box; it sends a command only when you switch a device.",
         "data": {
           "host": "Streda box"
         }
       },
       "manual": {
-        "title": "Isolectra Streda",
+        "title": "Isolectra Streda (Unofficial)",
         "description": "Enter the IP address of your Streda box (reserve a fixed address for it in your router). The automatic search only finds boxes on Home Assistant's own network that don't require a login. [How to find the IP address]({find_ip_url})\n\nThis integration uses its own connection, next to any MQTT setup you already have. It only reads from the box; it sends a command only when you switch a device.",
         "data": {
           "host": "IP address of the Streda box",
@@ -26,7 +26,7 @@
         }
       },
       "reconfigure": {
-        "title": "Isolectra Streda",
+        "title": "Isolectra Streda (Unofficial)",
         "description": "Change the connection to your Streda box, for example after it got a new IP address.",
         "data": {
           "host": "IP address of the Streda box",

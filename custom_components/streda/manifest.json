@@ -1,6 +1,6 @@
 {
   "domain": "streda",
-  "name": "Isolectra Streda",
+  "name": "Isolectra Streda (Unofficial)",
   "codeowners": [
     "@Divinity-Softworks"
   ],
@@ -18,5 +18,5 @@
   "requirements": [
     "paho-mqtt>=2.1.0"
   ],
-  "version": "1.1.0"
+  "version": "1.1.1"
 }
