@@ -1,9 +1,16 @@
 {
   "config": {
     "step": {
-      "user": {
+      "pick": {
         "title": "Isolectra Streda",
-        "description": "Connect to your Streda box. Enter its IP address (reserve a fixed address for it in your router). This integration uses its own connection, next to any MQTT setup you already have.\n\nIt only reads from the box; it sends a command only when you switch a device.",
+        "description": "Found {count} Streda box(es) on your network. Choose yours, or enter the IP address yourself.\n\nThis integration uses its own connection, next to any MQTT setup you already have. It only reads from the box; it sends a command only when you switch a device.",
+        "data": {
+          "host": "Streda box"
+        }
+      },
+      "manual": {
+        "title": "Isolectra Streda",
+        "description": "Enter the IP address of your Streda box (reserve a fixed address for it in your router). The automatic search only finds boxes on Home Assistant's own network that don't require a login. [How to find the IP address]({find_ip_url})\n\nThis integration uses its own connection, next to any MQTT setup you already have. It only reads from the box; it sends a command only when you switch a device.",
         "data": {
           "host": "IP address of the Streda box",
           "port": "Port",
@@ -30,6 +37,9 @@
         }
       }
     },
+    "progress": {
+      "scan": "Looking for Streda boxes on your network. This takes up to half a minute; nothing on your network is changed."
+    },
     "error": {
       "cannot_connect": "Cannot connect to the Streda box. Check the IP address and port, and that Home Assistant is on the same network.",
       "invalid_auth": "The Streda box refused the username or password.",
@@ -38,6 +48,13 @@
     "abort": {
       "already_configured": "This Streda box is already set up.",
       "reconfigure_successful": "The connection to the Streda box was updated."
+    }
+  },
+  "selector": {
+    "box": {
+      "options": {
+        "manual": "Enter the IP address myself"
+      }
     }
   }
 }

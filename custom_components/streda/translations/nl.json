@@ -1,0 +1,60 @@
+{
+  "config": {
+    "step": {
+      "pick": {
+        "title": "Isolectra Streda",
+        "description": "{count} Streda-box(en) gevonden op je netwerk. Kies de jouwe, of vul het IP-adres zelf in.\n\nDeze integratie gebruikt een eigen verbinding, naast een eventuele MQTT-koppeling die je al hebt. Ze leest alleen van de box; ze stuurt alleen een opdracht als jij een apparaat schakelt.",
+        "data": {
+          "host": "Streda-box"
+        }
+      },
+      "manual": {
+        "title": "Isolectra Streda",
+        "description": "Vul het IP-adres van je Streda-box in (reserveer er een vast adres voor in je router). Het automatisch zoeken vindt alleen boxen op het eigen netwerk van Home Assistant zonder inlog. [Zo vind je het IP-adres]({find_ip_url})\n\nDeze integratie gebruikt een eigen verbinding, naast een eventuele MQTT-koppeling die je al hebt. Ze leest alleen van de box; ze stuurt alleen een opdracht als jij een apparaat schakelt.",
+        "data": {
+          "host": "IP-adres van de Streda-box",
+          "port": "Poort",
+          "username": "Gebruikersnaam",
+          "password": "Wachtwoord",
+          "base_topic": "Zigbee2MQTT-basistopic"
+        },
+        "data_description": {
+          "host": "Bijvoorbeeld 192.168.68.50.",
+          "port": "De MQTT-poort van de box, normaal 1883.",
+          "username": "Leeg laten, tenzij je box een inlog vraagt.",
+          "base_topic": "Laat op zigbee2mqtt staan, tenzij je box een ander topic gebruikt."
+        }
+      },
+      "reconfigure": {
+        "title": "Isolectra Streda",
+        "description": "Wijzig de verbinding met je Streda-box, bijvoorbeeld als die een nieuw IP-adres heeft gekregen.",
+        "data": {
+          "host": "IP-adres van de Streda-box",
+          "port": "Poort",
+          "username": "Gebruikersnaam",
+          "password": "Wachtwoord",
+          "base_topic": "Zigbee2MQTT-basistopic"
+        }
+      }
+    },
+    "progress": {
+      "scan": "Bezig met zoeken naar Streda-boxen op je netwerk. Dit duurt tot een halve minuut; er wordt niets op je netwerk veranderd."
+    },
+    "error": {
+      "cannot_connect": "Kan geen verbinding maken met de Streda-box. Controleer het IP-adres en de poort, en of Home Assistant op hetzelfde netwerk zit.",
+      "invalid_auth": "De Streda-box weigert de gebruikersnaam of het wachtwoord.",
+      "no_device_list": "Verbonden, maar binnen 10 seconden geen apparatenlijst ontvangen. Is dit een Streda-box, en klopt het basistopic?"
+    },
+    "abort": {
+      "already_configured": "Deze Streda-box is al ingesteld.",
+      "reconfigure_successful": "De verbinding met de Streda-box is bijgewerkt."
+    }
+  },
+  "selector": {
+    "box": {
+      "options": {
+        "manual": "Ik vul het IP-adres zelf in"
+      }
+    }
+  }
+}

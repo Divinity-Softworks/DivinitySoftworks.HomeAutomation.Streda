@@ -42,10 +42,17 @@ def _new_client(username: str | None, password: str | None, purpose: str) -> pah
     return client
 
 
-def probe(host: str, port: int, username: str | None, password: str | None, base: str) -> tuple[int | None, str | None]:
-    """Connect once and read the retained device list (blocking; run in an executor).
+def read_device_list(
+    host: str,
+    port: int,
+    username: str | None,
+    password: str | None,
+    base: str,
+    timeout: float = PROBE_TIMEOUT,
+) -> tuple[list[dict[str, Any]] | None, str | None]:
+    """Connect once and read the retained device list (blocking; run in an executor). Only subscribes.
 
-    Returns (number of devices, None) on success, or (None, error key) on failure.
+    Returns (devices, None) on success, or (None, error key) on failure.
     """
     done = threading.Event()
     result: dict[str, Any] = {}
@@ -61,9 +68,9 @@ def probe(host: str, port: int, username: str | None, password: str | None, base
     def on_message(c: paho.Client, userdata: Any, msg: paho.MQTTMessage) -> None:
         try:
             devices = json.loads(msg.payload)
-            result["count"] = sum(1 for d in devices if d.get("type") != "Coordinator")
-        except (TypeError, ValueError, AttributeError):
-            result["count"] = 0
+            result["devices"] = [d for d in devices if isinstance(d, dict)]
+        except (TypeError, ValueError):
+            result["devices"] = []
         done.set()
 
     client.on_connect = on_connect
@@ -75,15 +82,31 @@ def probe(host: str, port: int, username: str | None, password: str | None, base
         return None, "cannot_connect"
     client.loop_start()
     try:
-        done.wait(PROBE_TIMEOUT)
+        done.wait(timeout)
     finally:
         client.disconnect()
         client.loop_stop()
     if "error" in result:
         return None, result["error"]
-    if "count" not in result:
+    if "devices" not in result:
         return None, "no_device_list"
-    return result["count"], None
+    return result["devices"], None
+
+
+def count_devices(devices: list[dict[str, Any]]) -> int:
+    """Number of devices in a device list, without the Zigbee coordinator (the box itself)."""
+    return sum(1 for d in devices if d.get("type") != "Coordinator")
+
+
+def probe(host: str, port: int, username: str | None, password: str | None, base: str) -> tuple[int | None, str | None]:
+    """Connect once and count the devices (blocking; run in an executor).
+
+    Returns (number of devices, None) on success, or (None, error key) on failure.
+    """
+    devices, error = read_device_list(host, port, username, password, base)
+    if devices is None:
+        return None, error
+    return count_devices(devices), None
 
 
 class StredaClient:

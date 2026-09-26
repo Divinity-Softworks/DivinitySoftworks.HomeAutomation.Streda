@@ -16,7 +16,7 @@ The box is the heart of the house's electrical installation, so the integration 
 
 - it only **subscribes** to the box's MQTT topics;
 - the only messages it publishes are **device commands** (`zigbee2mqtt/<device>/set`), and only when you or an
-  automation switch an entity - exactly what the Streda app does;
+  automation switch an entity;
 - it never sends Zigbee2MQTT bridge requests, never publishes retained messages and never changes settings.
 
 ## What you get
@@ -56,12 +56,41 @@ Copy `custom_components/streda` to `/config/custom_components/streda` and restar
 
 ## Setup
 
-1. **Find the Streda box's IP address** in your router, and preferably reserve a fixed address for it
-   (DHCP reservation), so it does not change.
-2. **Add the Isolectra Streda integration** (Settings → Devices & services → Add integration) and enter:
-   the box's IP address, port `1883`, no username/password (unless your box has one), base topic `zigbee2mqtt`.
+1. **Add the Isolectra Streda integration** (Settings → Devices & services → Add integration). It first
+   searches your network for Streda boxes (up to half a minute) and lists the ones it finds: pick yours.
+2. **Not found?** Choose *Enter the IP address myself* (or you get that form directly) and enter the box's
+   IP address, port `1883`, no username/password (unless your box has one), base topic `zigbee2mqtt`.
+   See [Finding the IP address of the box](#finding-the-ip-address-of-the-box).
 3. All devices appear with generic names such as *Streda BN1-C c75a*. Name them and assign rooms in the UI.
    Tip: press a wall switch and watch which relay changes in the logbook to find out which is which.
+
+Preferably reserve a fixed IP address for the box in your router (DHCP reservation), so it does not change.
+
+### How the search works
+
+The search is read-only, like the rest of the integration. It checks every address of Home Assistant's own
+network (at most 1024 addresses, e.g. a /22) for an open MQTT port `1883`. Each address that answers is asked
+once for its device list (`zigbee2mqtt/bridge/devices`); only a broker whose list contains Streda devices
+(manufacturer `TKHTechnology`) is offered. Nothing is published. The search does not find a box that requires a
+login, that is on another network (VLAN) than Home Assistant, or when Home Assistant runs in Docker without
+host networking; enter the address yourself in those cases.
+
+### Finding the IP address of the box
+
+- **Router:** look in your router's (or mesh app's) list of connected devices. The box has no name there;
+  look for a MAC address starting with `00:E6:E8`.
+- **Port scan** from a computer on the same network (adjust the range to yours, see `ipconfig` / `ip addr`):
+
+  ```bash
+  nmap -p 1883,8888 --open 192.168.68.0/22
+  ```
+
+  The box answers on port `1883` (MQTT) and `8888` (its Zigbee2MQTT dashboard: look, don't change).
+- **Confirm** it is the box (read-only):
+
+  ```bash
+  docker run --rm eclipse-mosquitto mosquitto_sub -h <ip> -p 1883 -t "zigbee2mqtt/bridge/info" -C 1
+  ```
 
 The integration uses **its own connection** to the box. You do not need Home Assistant's MQTT integration,
 and an existing MQTT setup (for example your own Mosquitto broker) is not affected.
@@ -72,6 +101,10 @@ If the box gets a new IP address: Settings → Devices & services → Isolectra 
 Version 0.1.x used Home Assistant's MQTT integration. On upgrade, the Streda entry takes the box's address
 from that MQTT connection automatically; entities and names stay the same. If the MQTT integration was only
 used for the Streda box, you can remove it afterwards.
+
+## Languages
+
+English and Dutch.
 
 ## Requirements
 

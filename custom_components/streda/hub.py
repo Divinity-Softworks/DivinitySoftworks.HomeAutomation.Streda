@@ -67,6 +67,7 @@ class StredaHub:
         self.base = base_topic
         self.devices: dict[str, StredaDevice] = {}
         self.connected = False
+        self._stopping = False
         self._by_name: dict[str, str] = {}
         self._device_list = asyncio.Event()
         self.on_new_devices: Any = None
@@ -92,6 +93,7 @@ class StredaHub:
         return True
 
     async def async_stop(self) -> None:
+        self._stopping = True
         await self.hass.async_add_executor_job(self._client.stop)
 
     @callback
@@ -99,7 +101,7 @@ class StredaHub:
         if connected == self.connected:
             return
         self.connected = connected
-        if not connected:
+        if not connected and not self._stopping:
             _LOGGER.warning("Lost the connection to the Streda box; reconnecting")
         for ieee in self.devices:
             async_dispatcher_send(self.hass, signal_device(self.entry_id, ieee), None)
@@ -177,7 +179,7 @@ class StredaHub:
             async_dispatcher_send(self.hass, signal_device(self.entry_id, ieee), None)
 
     async def async_command(self, device: StredaDevice, payload: dict[str, Any]) -> None:
-        """Send a device command, exactly like the Streda app would (never retained)."""
+        """Send a device command (never retained)."""
         await self.hass.async_add_executor_job(
             self._client.publish, f"{self.base}/{device.friendly_name}/set", json.dumps(payload)
         )
