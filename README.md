@@ -48,7 +48,23 @@ Behaviour worth knowing:
 
 ## Installation
 
-### HACS (recommended)
+### Marketplace (recommended, Home Assistant 2026.11 or newer)
+
+The Marketplace is built into Home Assistant and replaces HACS.
+
+1. **Settings → Marketplace.** The first time, accept the warning (until then, nothing can be installed or
+   updated) and connect GitHub when asked.
+2. Top right: **Add from link**, enter this repository's URL
+   (`https://github.com/Divinity-Softworks/DivinitySoftworks.HomeAutomation.Streda`) and select **Add**. If asked
+   for a type, choose **Integration**.
+3. Open **Isolectra Streda (Unofficial)** and select **Install**. Restart Home Assistant if asked.
+
+New versions appear under **Settings → Updates**.
+
+**Coming from HACS?** After updating Home Assistant to 2026.11, the Marketplace takes over the integration
+automatically; only accept the Marketplace warning once, or updates fail.
+
+### HACS (Home Assistant before 2026.11)
 
 1. HACS → ⋮ → **Custom repositories** → add this repository's URL, type **Integration**.
 2. Install **Isolectra Streda (Unofficial)** and restart Home Assistant.
@@ -88,7 +104,7 @@ host networking; enter the address yourself in those cases.
   nmap -p 1883,8888 --open 192.168.68.0/22
   ```
 
-  The box answers on port `1883` (MQTT) and `8888` (its Zigbee2MQTT dashboard: look, don't change).
+  The box answers on port `1883` (MQTT) and `8888` (its Zigbee2MQTT dashboard: change things at your own risk).
 - **Confirm** it is the box (read-only):
 
   ```bash
